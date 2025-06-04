@@ -1,33 +1,37 @@
 import streamlit as st
 from utils.data import fetch_data
+import importlib
+from utils.backtester import run_backtest
 
-#title
 st.title("Trading Bot Simulator")
 
-#sidebar header
 st.sidebar.header("Simulation Controls")
 
-#ticker selection
 tickers = ["AAPL", "GOOG", "MSFT", "TSLA", "AMZN", "NVDA", "META"]
 selected_ticker = st.sidebar.selectbox("Select a stock ticker", tickers)
 
-#data range selection
 start_date = st.sidebar.date_input("Start date")
 end_date = st.sidebar.date_input("End date")
 
-#strategy selection
 strategies = ["SMA Crossover", "RSI Strategy", "MACD Strategy"]
+strategy_map = {
+    "SMA Crossover": "sma_crossover",
+    "RSI Strategy": "rsi_strategy",
+    "MACD Strategy": "macd_strategy"
+}
 selected_strategy = st.sidebar.selectbox("Select strategy", strategies)
 
-#run simulation button
 if st.sidebar.button("Run Simulation"):
     st.write(f"Running simulation for {selected_ticker} from {start_date} to {end_date} using {selected_strategy}")
 
-     # Fetch data
-    df = fetch_data(selected_ticker, str(start_date), str(end_date))
+    df = fetch_data(selected_ticker, start_date, end_date)
 
-    # Show preview
-    st.subheader("📊 Price Data Preview")
-    st.dataframe(df.head())
+    strategy_module_name = strategy_map[selected_strategy]
+    strategy_module = importlib.import_module(f"strategies.{strategy_module_name}")
+
+    signals = strategy_module.generate_signals(df)
+
+    equity_curve = run_backtest(df, signals)
+    st.line_chart(equity_curve['Equity Curve'])
 else:
     st.write("Set parameters and click 'Run Simulation' to start")
