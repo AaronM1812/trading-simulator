@@ -9,7 +9,9 @@ def run_backtest(df, signals, initial_capital=10000):
         prices = prices.squeeze()
     
     prices = prices.tolist()
-    signal_list = signals.tolist()
+    # If signals is already a list, just assign directly
+    signal_list = signals if isinstance(signals, list) else signals.tolist()
+
     
     shares = 0
     cash = initial_capital
