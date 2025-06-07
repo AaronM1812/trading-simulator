@@ -3,6 +3,8 @@ from utils.data import fetch_data
 import importlib
 from utils.backtester import run_backtest
 from utils import metrics
+import plotly.graph_objects as go
+import pandas as pd
 
 
 st.title("Trading Bot Simulator")
@@ -28,10 +30,49 @@ if st.sidebar.button("Run Simulation"):
 
     df = fetch_data(selected_ticker, start_date, end_date)
 
+    close_prices = df["Close"].squeeze().tolist()
+
     strategy_module_name = strategy_map[selected_strategy]
     strategy_module = importlib.import_module(f"strategies.{strategy_module_name}")
-
     signals = strategy_module.generate_signals(df)
+
+    signal_list = signals.tolist()
+
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(
+        x=df.index.tolist(),
+        y=close_prices,
+        mode='lines',
+        name='Close Price',
+        line=dict(color='blue')
+    ))
+
+    buy_indices = [i for i, s in enumerate(signal_list) if s == "buy"]
+    sell_indices = [i for i, s in enumerate(signal_list) if s == "sell"]
+
+    fig.add_trace(go.Scatter(
+        x=[df.index[i] for i in buy_indices],
+        y=[close_prices[i] for i in buy_indices],
+        mode='markers',
+        marker=dict(symbol='triangle-up', color='green', size=12),
+        name='Buy Signals'
+    ))
+
+    fig.add_trace(go.Scatter(
+        x=[df.index[i] for i in sell_indices],
+        y=[close_prices[i] for i in sell_indices],
+        mode='markers',
+        marker=dict(symbol='triangle-down', color='red', size=12),
+        name='Sell Signals'
+    ))
+
+    fig.update_layout(
+        title=f"{selected_ticker} Price Chart",
+        xaxis_title='Date',
+        yaxis_title='Price',
+        height=600
+    )
+    st.plotly_chart(fig, use_container_width=True)
 
     equity_curve = run_backtest(df, signals)
     returns = equity_curve["Equity Curve"].pct_change().dropna().tolist()
@@ -49,3 +90,4 @@ if st.sidebar.button("Run Simulation"):
 
 else:
     st.write("Set parameters and click 'Run Simulation' to start")
+
