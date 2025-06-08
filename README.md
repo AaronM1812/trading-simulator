@@ -43,7 +43,7 @@ Then open the app in your browser.
 ## 📷 Screenshots
 
 ### 1. Sidebar Controls
-![Sidebar](screenshots/sidebar.png)
+![Sidebar](screenshots/new_sidebar.png)
 
 ### 2. Price Chart with Trades
 ![Price Chart](screenshots/price_chart.png)
