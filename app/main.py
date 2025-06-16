@@ -62,10 +62,12 @@ def render_sidebar():
         st.sidebar.warning("Start date cannot be in the future. Resetting to 1 year ago.")
         selected_start_date = default_start
     if selected_start_date >= selected_end_date:
-        st.sidebar.error("Start date must be before end date")
+        st.sidebar.error("Oops! Start date must be before end date. Please adjust your selection.")
         return None
     
     st.sidebar.markdown("---")
+    st.sidebar.info("Tip: Hover over the parameter names for more info.")
+    # TODO: Maybe add a logo or theme color later
     
     # Strategy selection
     strategies = ["SMA Crossover", "RSI Strategy", "MACD Strategy"]
@@ -91,30 +93,38 @@ def get_strategy_parameters(strategy_name: str) -> dict:
     params = {}
     if strategy_name == "SMA Crossover":
         params["short_window"] = st.sidebar.number_input(
-            "Short Window", min_value=1, max_value=100, value=20
+            "Short Window", min_value=1, max_value=100, value=20,
+            help="Number of days for the short moving average"
         )
         params["long_window"] = st.sidebar.number_input(
-            "Long Window", min_value=1, max_value=200, value=50
+            "Long Window", min_value=1, max_value=200, value=50,
+            help="Number of days for the long moving average"
         )
     elif strategy_name == "RSI Strategy":
         params["period"] = st.sidebar.number_input(
-            "RSI Period", min_value=1, max_value=50, value=14
+            "RSI Period", min_value=1, max_value=50, value=14,
+            help="Number of days to calculate RSI"
         )
         params["overbought"] = st.sidebar.slider(
-            "Overbought Threshold", 50, 100, 70
+            "Overbought Threshold", 50, 100, 70,
+            help="RSI value above which the asset is considered overbought"
         )
         params["oversold"] = st.sidebar.slider(
-            "Oversold Threshold", 0, 50, 30
+            "Oversold Threshold", 0, 50, 30,
+            help="RSI value below which the asset is considered oversold"
         )
     elif strategy_name == "MACD Strategy":
         params["fast_period"] = st.sidebar.number_input(
-            "Fast EMA Period", min_value=1, max_value=50, value=12
+            "Fast EMA Period", min_value=1, max_value=50, value=12,
+            help="Number of days for the fast EMA in MACD"
         )
         params["slow_period"] = st.sidebar.number_input(
-            "Slow EMA Period", min_value=1, max_value=100, value=26
+            "Slow EMA Period", min_value=1, max_value=100, value=26,
+            help="Number of days for the slow EMA in MACD"
         )
         params["signal_period"] = st.sidebar.number_input(
-            "Signal Line Period", min_value=1, max_value=50, value=9
+            "Signal Line Period", min_value=1, max_value=50, value=9,
+            help="Number of days for the MACD signal line"
         )
     return params
 
