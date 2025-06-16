@@ -13,7 +13,10 @@ from app.core.backtester import Backtester
 from app.metrics.performance import (
     calculate_total_return,
     calculate_sharpe_ratio,
-    calculate_max_drawdown
+    calculate_max_drawdown,
+    calculate_cagr,
+    calculate_sortino_ratio,
+    calculate_calmar_ratio,
 )
 from app.strategies.strategy_factory import get_strategy
 
@@ -182,6 +185,11 @@ def main():
             total_ret = calculate_total_return(equity_curve["Equity Curve"])
             sharpe = calculate_sharpe_ratio(returns)
             max_dd = calculate_max_drawdown(equity_curve["Equity Curve"])
+            # Show some more advanced stats for the curious/quants
+            years = (params['end_date'] - params['start_date']).days / 365.25
+            cagr = calculate_cagr(equity_curve["Equity Curve"], years)
+            sortino = calculate_sortino_ratio(returns)
+            calmar = calculate_calmar_ratio(equity_curve["Equity Curve"], years)
             # Tabs for results
             tab1, tab2, tab3 = st.tabs(["📈 Price & Trades", "📉 Equity Curve", "📊 Performance Metrics"])
             with tab1:
@@ -194,6 +202,10 @@ def main():
                 col1.metric("📈 Total Return", f"{total_ret:.2f}%")
                 col2.metric("📊 Sharpe Ratio", f"{sharpe:.2f}")
                 col3.metric("📉 Max Drawdown", f"{max_dd:.2f}%")
+                st.markdown("#### Advanced Metrics")
+                st.write(f"**CAGR:** {cagr:.2f}%")
+                st.write(f"**Sortino Ratio:** {sortino:.2f}")
+                st.write(f"**Calmar Ratio:** {calmar:.2f}")
                 st.markdown("### Trade Log")
                 trade_log = backtester.get_trade_log()
                 if not trade_log.empty:
