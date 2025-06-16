@@ -98,11 +98,39 @@ class MACDStrategy(Strategy):
                 signals.append(None)
         return signals
 
+class BollingerBandsStrategy(Strategy):
+    """
+    Bollinger Bands strategy.
+    Buys when price crosses above the lower band, sells when it crosses below the upper band.
+    """
+    def generate_signals(self, data: pd.DataFrame, **kwargs) -> list:
+        window = kwargs.get('window', 20)
+        num_std = kwargs.get('num_std', 2)
+        # Classic Bollinger Bands logic: buy the dip, sell the rip
+        rolling_mean = data['Close'].rolling(window=window).mean()
+        rolling_std = data['Close'].rolling(window=window).std()
+        upper_band = rolling_mean + num_std * rolling_std
+        lower_band = rolling_mean - num_std * rolling_std
+        signals = []
+        for i in range(len(data)):
+            if i < window:
+                signals.append(None)
+                continue
+            price = data['Close'].iloc[i]
+            if price < lower_band.iloc[i] and data['Close'].iloc[i-1] >= lower_band.iloc[i-1]:
+                signals.append('buy')
+            elif price > upper_band.iloc[i] and data['Close'].iloc[i-1] <= upper_band.iloc[i-1]:
+                signals.append('sell')
+            else:
+                signals.append(None)
+        return signals
+
 # Strategy registry
 STRATEGY_REGISTRY: Dict[str, Type[Strategy]] = {
     "SMA Crossover": SMACrossoverStrategy,
     "RSI Strategy": RSIStrategy,
-    "MACD Strategy": MACDStrategy
+    "MACD Strategy": MACDStrategy,
+    "Bollinger Bands": BollingerBandsStrategy
 }
 
 def get_strategy(strategy_name: str) -> Strategy:

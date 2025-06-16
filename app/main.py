@@ -70,7 +70,7 @@ def render_sidebar():
     # TODO: Maybe add a logo or theme color later
     
     # Strategy selection
-    strategies = ["SMA Crossover", "RSI Strategy", "MACD Strategy"]
+    strategies = ["SMA Crossover", "RSI Strategy", "MACD Strategy", "Bollinger Bands"]
     selected_strategy = st.sidebar.selectbox("Select strategy", strategies)
     
     # Get parameters for the selected strategy
@@ -125,6 +125,15 @@ def get_strategy_parameters(strategy_name: str) -> dict:
         params["signal_period"] = st.sidebar.number_input(
             "Signal Line Period", min_value=1, max_value=50, value=9,
             help="Number of days for the MACD signal line"
+        )
+    elif strategy_name == "Bollinger Bands":
+        params["window"] = st.sidebar.number_input(
+            "Window (Period)", min_value=5, max_value=100, value=20,
+            help="Number of days for the moving average window"
+        )
+        params["num_std"] = st.sidebar.slider(
+            "Num Std Devs", 1, 4, 2,
+            help="Number of standard deviations for the bands"
         )
     return params
 
