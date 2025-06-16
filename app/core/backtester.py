@@ -126,7 +126,8 @@ class Backtester:
                 'Position Type': trade.position_type,
                 'PnL': trade.pnl,
                 'PnL %': trade.pnl_pct,
-                'Status': trade.status
+                'Status': trade.status,
+                'Trade Duration': (trade.exit_date - trade.entry_date).days if trade.exit_date and trade.entry_date else None
             })
         return pd.DataFrame(trade_data)
 
