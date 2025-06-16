@@ -53,6 +53,16 @@ A modular, professional-grade trading strategy backtester and simulator with a c
 - Parameter optimization tools
 - (Your ideas here!)
 
+## Running Tests
+
+To run the test suite, just use:
+
+```bash
+pytest tests/
+```
+
+This will check that the core logic and strategies work as expected. Feel free to add more tests as you expand the project!
+
 ---
 
 *Built by Aaron Malhi. Contributions and feedback welcome!*
