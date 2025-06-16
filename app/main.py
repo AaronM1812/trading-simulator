@@ -189,7 +189,6 @@ def main():
             # Flatten columns if multi-indexed (yfinance sometimes does this)
             if isinstance(df.columns, pd.MultiIndex):
                 df.columns = [col[0] for col in df.columns]
-            st.write('Fetched DataFrame:', df)  # Debug: show the data
             if df.empty:
                 st.error("No data found for the selected ticker and date range. Please choose a different range.")
                 return
