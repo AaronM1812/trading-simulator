@@ -1,165 +1,58 @@
 # Trading Bot Simulator
 
-A professional-grade trading strategy backtesting and simulation platform built with Python. This project demonstrates both quantitative trading strategy implementation and software engineering best practices.
+A modular, professional-grade trading strategy backtester and simulator with a clean Streamlit UI. Built for learning, portfolio, and interview prep.
 
-## 🚀 Features
+## Features
 
-- **Multiple Trading Strategies**
-  - SMA Crossover
-  - RSI Strategy
-  - MACD Strategy
-  - (More strategies can be easily added through the plugin system)
+- Modular strategy plug-in system (SMA Crossover, RSI, MACD, Bollinger Bands)
+- Advanced performance metrics: Total Return, Sharpe, Max Drawdown, CAGR, Sortino, Calmar, etc.
+- Enhanced trade log (includes trade duration)
+- Clean, interactive Streamlit UI with tooltips and error handling
+- Downloadable trade log (CSV)
+- Easy to add new strategies or metrics
 
-- **Comprehensive Backtesting**
-  - Realistic trade execution
-  - Commission handling
-  - Position sizing
-  - Long/Short support
+## Screenshots
 
-- **Advanced Performance Metrics**
-  - Total Return
-  - Sharpe Ratio
-  - Maximum Drawdown
-  - CAGR
-  - Calmar Ratio
-  - Sortino Ratio
-  - Win Rate
-  - Profit Factor
-  - Recovery Factor
+| UI Overview | Performance Metrics | Trade Log |
+|-------------|--------------------|-----------|
+| ![UI Overview](screenshots/ui_overview.png) | ![Metrics](screenshots/metrics.png) | ![Trade Log](screenshots/trade_log.png) |
 
-- **Professional UI**
-  - Interactive charts with Plotly
-  - Trade log visualization
-  - Performance metrics dashboard
-  - CSV export functionality
+*TODO: Add more screenshots as features are added or updated.*
 
-## 🛠️ Installation
+## How to Run
 
-1. Clone the repository:
-```bash
-git clone https://github.com/yourusername/trading-simulator.git
-cd trading-simulator
-```
+1. Clone the repo
+2. Install requirements: `pip install -r requirements.txt`
+3. Run the app: `streamlit run app/main.py`
 
-2. Create and activate a virtual environment:
-```bash
-python -m venv .venv
-source .venv/bin/activate  # On Windows: .venv\Scripts\activate
-```
+## Strategies Included
 
-3. Install dependencies:
-```bash
-pip install -r requirements.txt
-```
+- **SMA Crossover**: Buy/sell based on short/long moving average crossovers
+- **RSI Strategy**: Buy/sell based on RSI overbought/oversold levels
+- **MACD Strategy**: Buy/sell based on MACD and signal line crossovers
+- **Bollinger Bands**: Buy when price crosses above lower band, sell when it crosses below upper band
 
-## 🎮 Usage
+## Performance Metrics
 
-1. Start the Streamlit app:
-```bash
-streamlit run app/main.py
-```
+- Total Return
+- Sharpe Ratio
+- Max Drawdown
+- CAGR (Compound Annual Growth Rate)
+- Sortino Ratio
+- Calmar Ratio
+- Win Rate
+- Profit Factor
+- Average Trade PnL
+- Trade Duration (days)
 
-2. In the web interface:
-   - Select a stock ticker
-   - Choose a date range
-   - Select a trading strategy
-   - Adjust strategy parameters
-   - Click "Run Simulation"
+## Future Work
 
-3. View the results:
-   - Price chart with trade signals
-   - Equity curve
-   - Performance metrics
-   - Trade log
+- Add more strategies (momentum, mean reversion, etc.)
+- Portfolio/multi-asset support
+- More advanced visualizations
+- Parameter optimization tools
+- (Your ideas here!)
 
-## 📊 Strategy Details
+---
 
-### SMA Crossover
-- Uses two Simple Moving Averages
-- Generates buy signal when short MA crosses above long MA
-- Generates sell signal when short MA crosses below long MA
-
-### RSI Strategy
-- Uses Relative Strength Index
-- Generates buy signal when RSI crosses below oversold threshold
-- Generates sell signal when RSI crosses above overbought threshold
-
-### MACD Strategy
-- Uses Moving Average Convergence Divergence
-- Generates buy signal when MACD line crosses above signal line
-- Generates sell signal when MACD line crosses below signal line
-
-## 🏗️ Project Structure
-
-```
-trading-simulator/
-├── app/                      # Application source code
-│   ├── main.py              # Streamlit app entry point
-│   ├── strategies/          # Trading strategies
-│   ├── core/               # Backtesting engine
-│   ├── metrics/            # Performance metrics
-│   ├── data/               # Market data handling
-│   └── utils/              # Helper functions
-├── tests/                   # Unit tests
-├── requirements.txt         # Project dependencies
-└── README.md               # Project documentation
-```
-
-## 🧪 Testing
-
-Run the test suite:
-```bash
-pytest tests/
-```
-
-## 🛠️ Development
-
-1. Code formatting:
-```bash
-black app/ tests/
-```
-
-2. Linting:
-```bash
-ruff check app/ tests/
-```
-
-3. Type checking:
-```bash
-mypy app/ tests/
-```
-
-## 📝 Adding New Strategies
-
-1. Create a new strategy class in `app/strategies/`
-2. Inherit from the `Strategy` base class
-3. Implement the `generate_signals` method
-4. Register the strategy in `STRATEGY_REGISTRY`
-
-Example:
-```python
-from app.strategies.strategy_factory import Strategy
-
-class MyStrategy(Strategy):
-    def generate_signals(self, data: pd.DataFrame, **kwargs) -> list:
-        # Implement your strategy logic here
-        return signals
-```
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a Pull Request
-
-## 📄 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## 🙏 Acknowledgments
-
-- Built with [Streamlit](https://streamlit.io/)
-- Market data from [Yahoo Finance](https://finance.yahoo.com/)
-- Charts powered by [Plotly](https://plotly.com/)
+*Built by Aaron Malhi. Contributions and feedback welcome!*
