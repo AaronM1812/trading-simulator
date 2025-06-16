@@ -145,7 +145,7 @@ def plot_price_and_trades(df: pd.DataFrame, signals: list, ticker: str):
         y=df["Close"].values,
         mode='lines',
         name='Close Price',
-        line=dict(color='blue')
+        line=dict(color='#FFA500')  # Use orange for better visibility in both light and dark mode
     ))
     # Add markers for buy/sell signals
     for i, signal in enumerate(signals):
