@@ -137,6 +137,6 @@ This project is open source and available under the MIT License.
 
 ---
 
-**Built with ❤️ by Aaron Malhi**
+**Built by Aaron Malhi**
 
 *For questions, feedback, or collaboration opportunities, feel free to reach out!*
