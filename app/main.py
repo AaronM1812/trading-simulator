@@ -8,9 +8,9 @@ from datetime import datetime, timedelta
 import plotly.graph_objects as go
 import pandas as pd
 
-from app.data.market_data import fetch_market_data
-from app.core.backtester import Backtester
-from app.metrics.performance import (
+from data.market_data import fetch_market_data
+from core.backtester import Backtester
+from metrics.performance import (
     calculate_total_return,
     calculate_sharpe_ratio,
     calculate_max_drawdown,
@@ -18,7 +18,7 @@ from app.metrics.performance import (
     calculate_sortino_ratio,
     calculate_calmar_ratio,
 )
-from app.strategies.strategy_factory import get_strategy
+from strategies.strategy_factory import get_strategy
 
 # Set up the Streamlit page
 st.set_page_config(
