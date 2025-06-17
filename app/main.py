@@ -1,13 +1,10 @@
-"""
-Trading Bot Simulator - Main App
-A Streamlit-based platform for backtesting trading strategies on historical stock data.
-"""
-
+#libraries used for the main fie, these are used to build the UI, handling dates, plotting charts and data manipulation
 import streamlit as st
 from datetime import datetime, timedelta
 import plotly.graph_objects as go
 import pandas as pd
 
+#these are custom imports from my data, backtesting, metrics and strategies modules
 from data.market_data import fetch_market_data
 from core.backtester import Backtester
 from metrics.performance import (
@@ -20,7 +17,7 @@ from metrics.performance import (
 )
 from strategies.strategy_factory import get_strategy
 
-# Set up the Streamlit page
+#setting up the steamlit page with title ext
 st.set_page_config(
     page_title="Trading Bot Simulator",
     page_icon="🤖",
@@ -28,22 +25,25 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
+#only creates the session state if it doesn't exist yet, prevents reruns and also used to show last updated timestamps
 def initialize_session_state():
-    # Only set up session state if it doesn't exist yet
     if 'last_run' not in st.session_state:
         st.session_state.last_run = None
 
+#the sidebar configuration which includes header, stock selection, date selection, strat selection and parameters and run button
 def render_sidebar():
     st.sidebar.header("⚙️ Simulation Controls")
     
-    # Ticker selection
+    #stock selection
     tickers = ["AAPL", "GOOG", "MSFT", "TSLA", "AMZN", "NVDA", "META"]
     selected_ticker = st.sidebar.selectbox("Select a stock ticker", tickers)
     
-    # Date range selection (default: past year)
+    #date selection
     today = datetime.now().date()
+    #set start date to 1 year before
     default_start = today - timedelta(days=365)
 
+    #this is the default start date
     selected_start_date = st.sidebar.date_input(
         "Start date",
         value=default_start,
@@ -54,7 +54,8 @@ def render_sidebar():
         value=today,
         max_value=today
     )
-    # Prevent future dates and warn user if needed
+    
+    #error handling of the user trying to select future dates and setting start infront of end
     if selected_end_date > today:
         st.sidebar.warning("End date cannot be in the future. Resetting to today.")
         selected_end_date = today
@@ -65,20 +66,22 @@ def render_sidebar():
         st.sidebar.error("Oops! Start date must be before end date. Please adjust your selection.")
         return None
     
+    #split the sidebare
     st.sidebar.markdown("---")
+    #tip info
     st.sidebar.info("Tip: Hover over the parameter names for more info.")
-    # TODO: Maybe add a logo or theme color later
     
-    # Strategy selection
+    #strat selection
     strategies = ["SMA Crossover", "RSI Strategy", "MACD Strategy", "Bollinger Bands"]
     selected_strategy = st.sidebar.selectbox("Select strategy", strategies)
     
-    # Get parameters for the selected strategy
+    #parameters of selected strat using get strategy parameters function below
     strategy_params = get_strategy_parameters(selected_strategy)
     
-    # Run button
+    #run button
     run_button = st.sidebar.button("🚀 Run Simulation")
     
+    #all user inputs, used when passing parameters to simulation logic
     return {
         'ticker': selected_ticker,
         'start_date': selected_start_date,
@@ -88,14 +91,17 @@ def render_sidebar():
         'run_button': run_button
     }
 
+#function for ui parameter controls based on selected strategy
 def get_strategy_parameters(strategy_name: str) -> dict:
-    # Show parameter controls for the selected strategy
+    #dictionary of parameter controls based on the strategy
     params = {}
     if strategy_name == "SMA Crossover":
+        #e.g. create a short window for sma crossover with default values and help icon
         params["short_window"] = st.sidebar.number_input(
             "Short Window", min_value=1, max_value=100, value=20,
             help="Number of days for the short moving average"
         )
+        #also a long window parameter with similar settings
         params["long_window"] = st.sidebar.number_input(
             "Long Window", min_value=1, max_value=200, value=50,
             help="Number of days for the long moving average"
@@ -135,20 +141,25 @@ def get_strategy_parameters(strategy_name: str) -> dict:
             "Num Std Devs", 1, 4, 2,
             help="Number of standard deviations for the bands"
         )
+    #returning the parameters dictionary
     return params
 
+#function which plots the price chart with the buy and sell triangles to represent the trades
 def plot_price_and_trades(df: pd.DataFrame, signals: list, ticker: str):
-    # Plot the price chart and overlay buy/sell signals
+    #plotting the price chart
     fig = go.Figure()
     fig.add_trace(go.Scatter(
         x=df.index.tolist(),
         y=df["Close"].values,
         mode='lines',
         name='Close Price',
-        line=dict(color='#FFA500')  # Use orange for better visibility in both light and dark mode
+        #line colour used for dark mode visibility
+        line=dict(color='#FFA500')
     ))
-    # Add markers for buy/sell signals
+    
+    #iterating through all the signals to plot the buy and sell triangles
     for i, signal in enumerate(signals):
+        #if the signal is a buy, plot a green triangle using the date and price
         if signal == 'buy':
             fig.add_trace(go.Scatter(
                 x=[df.index[i]],
@@ -157,6 +168,7 @@ def plot_price_and_trades(df: pd.DataFrame, signals: list, ticker: str):
                 marker=dict(color='green', size=10, symbol='triangle-up'),
                 name='Buy'
             ))
+        #else if the signal is a sell, plot a red triangle using the date and price
         elif signal == 'sell':
             fig.add_trace(go.Scatter(
                 x=[df.index[i]],
@@ -165,6 +177,7 @@ def plot_price_and_trades(df: pd.DataFrame, signals: list, ticker: str):
                 marker=dict(color='red', size=10, symbol='triangle-down'),
                 name='Sell'
             ))
+    #updating the layout of the chart and returns ready for display in streamlit
     fig.update_layout(
         title=f"{ticker} Price with Trades",
         xaxis_title='Date',
@@ -173,48 +186,61 @@ def plot_price_and_trades(df: pd.DataFrame, signals: list, ticker: str):
     )
     return fig
 
+#main function which is run intially, sets up the page, sidebar and runs the simulation when run button is clicked
 def main():
+    #title of the page
     st.title("🤖 Trading Bot Simulator")
+    #initializing the session state
     initialize_session_state()
+    #rendering the sidebar
     params = render_sidebar()
+    #if the run button is clicked, run the simulation
     if params and params['run_button']:
+        #setting the last run timestamp
         st.session_state.last_run = datetime.now()
+        #subheader of the page
         st.subheader(
             f"📊 Results for {params['ticker']} from {params['start_date']} "
             f"to {params['end_date']} using {params['strategy']}"
         )
         try:
-            # Download the price data
+            #download the datafram using the data module and required parameters
             df = fetch_market_data(params['ticker'], params['start_date'], params['end_date'])
-            # Flatten columns if multi-indexed (yfinance sometimes does this)
+            #flattening columns if multi indexed
             if isinstance(df.columns, pd.MultiIndex):
                 df.columns = [col[0] for col in df.columns]
+            #error handling if no data is found
             if df.empty:
                 st.error("No data found for the selected ticker and date range. Please choose a different range.")
                 return
-            # Get the strategy and generate signals
+            #getting the strategy and generating signals
             strategy = get_strategy(params['strategy'])
             signals = strategy.generate_signals(df, **params['params'])
-            # Run the backtest
+            #running the backtester
             backtester = Backtester(df, signals)
+            #equity curve set to the total value of the portfolio
             equity_curve = backtester.run()
+            #calculating the returns
             returns = equity_curve["Equity Curve"].pct_change().dropna()
-            # Calculate performance metrics
+            #calculating performance metrics using the metrics module
             total_ret = calculate_total_return(equity_curve["Equity Curve"])
             sharpe = calculate_sharpe_ratio(returns)
             max_dd = calculate_max_drawdown(equity_curve["Equity Curve"])
-            # Show some more advanced stats for the curious/quants
+            #calculating the more advanced metrics suc as cagr, sortino and calmar using metrics module
             years = (params['end_date'] - params['start_date']).days / 365.25
             cagr = calculate_cagr(equity_curve["Equity Curve"], years)
             sortino = calculate_sortino_ratio(returns)
             calmar = calculate_calmar_ratio(equity_curve["Equity Curve"], years)
-            # Tabs for results
+            #tabs used for better UI to show price chart, equity curve and performance metrics
             tab1, tab2, tab3 = st.tabs(["📈 Price & Trades", "📉 Equity Curve", "📊 Performance Metrics"])
             with tab1:
+                #plotting the price chart with the buy and sell triangles
                 fig = plot_price_and_trades(df, signals, params['ticker'])
                 st.plotly_chart(fig, use_container_width=True)
+            #plotting the equity curve
             with tab2:
                 st.line_chart(equity_curve['Equity Curve'])
+            #displaying the performance metrics and trade log
             with tab3:
                 col1, col2, col3 = st.columns(3)
                 col1.metric("📈 Total Return", f"{total_ret:.2f}%")
@@ -226,22 +252,26 @@ def main():
                 st.write(f"**Calmar Ratio:** {calmar:.2f}")
                 st.markdown("### Trade Log")
                 trade_log = backtester.get_trade_log()
+                #error handling
                 if not trade_log.empty:
-                    # Make sure all columns are scalars for Streamlit
+                    #making sure all columns are scalars for Streamlit
                     for col in trade_log.columns:
                         trade_log[col] = trade_log[col].apply(lambda x: x if not hasattr(x, 'to_list') and not isinstance(x, (pd.Series, list, dict)) else str(x))
+                #displaying the trade log
                 st.dataframe(trade_log)
+                #download button, allowing the user to download the trade log as a csv
                 st.download_button(
                     "📥 Download Trade Log",
                     trade_log.to_csv(index=False),
                     "trade_log.csv",
                     "text/csv"
                 )
+        #error handling if the simulation fails
         except Exception as e:
             st.error(f"Something went wrong: {e}")
-    else:
+    #error handling if the run button is not clicked
         st.info("🎛️ Set parameters in the sidebar and click **Run Simulation** to begin.")
 
+#main function to run the app
 if __name__ == "__main__":
     main()
-# TODO: Add more strategies and risk management options in the next phase 

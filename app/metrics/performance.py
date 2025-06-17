@@ -1,206 +1,134 @@
-"""
-Performance metrics calculation module.
-Provides functions for calculating various trading performance metrics.
-"""
-
+#libraries used to calculate the performance metrics
 import numpy as np
 import pandas as pd
 from typing import List, Union
 
+#function to calculate the total return of the strategy
 def calculate_total_return(equity_curve: Union[List[float], pd.Series]) -> float:
-    """
-    Calculate the total return of the strategy.
-    
-    Args:
-        equity_curve: List or Series of equity values
-    
-    Returns:
-        float: Total return as a percentage
-    """
+    #error handling if the equity curve is a list
     if isinstance(equity_curve, list):
         equity_curve = pd.Series(equity_curve)
-    
+    #initial value of the equity curve
     initial_value = equity_curve.iloc[0]
+    #final value of the equity curve
     final_value = equity_curve.iloc[-1]
-    
+    #calculating the total return
     return ((final_value - initial_value) / initial_value) * 100
 
+#function to calculate the sharpe ratio of the strategy
 def calculate_sharpe_ratio(returns: Union[List[float], pd.Series], risk_free_rate: float = 0.02) -> float:
-    """
-    Calculate the Sharpe ratio of the strategy.
-    
-    Args:
-        returns: List or Series of returns
-        risk_free_rate: Annual risk-free rate (default: 2%)
-    
-    Returns:
-        float: Sharpe ratio
-    """
+    #error handling if the returns are a list
     if isinstance(returns, list):
         returns = pd.Series(returns)
     
-    # Convert returns to annual
+    #calculating the annual returns
     annual_returns = returns.mean() * 252
+    #calculating the annual volatility
     annual_volatility = returns.std() * np.sqrt(252)
-    
+    #error handling if the annual volatility is 0
     if annual_volatility == 0:
         return 0.0
-    
+    #calculating the sharpe ratio
     return (annual_returns - risk_free_rate) / annual_volatility
 
+#function to calculate the maximum drawdown of the strategy
 def calculate_max_drawdown(equity_curve: Union[List[float], pd.Series]) -> float:
-    """
-    Calculate the maximum drawdown of the strategy.
-    
-    Args:
-        equity_curve: List or Series of equity values
-    
-    Returns:
-        float: Maximum drawdown as a percentage
-    """
+    #error handling if the equity curve is a list
     if isinstance(equity_curve, list):
         equity_curve = pd.Series(equity_curve)
-    
-    # Calculate running maximum
+    #calculating the running maximum
     running_max = equity_curve.expanding().max()
-    
-    # Calculate drawdowns
+    #calculating the drawdowns
     drawdowns = (equity_curve - running_max) / running_max * 100
-    
+    #returning the maximum drawdown
     return abs(drawdowns.min())
 
 def calculate_cagr(equity_curve: Union[List[float], pd.Series], years: float) -> float:
-    """
-    Calculate the Compound Annual Growth Rate (CAGR).
-    
-    Args:
-        equity_curve: List or Series of equity values
-        years: Number of years in the backtest period
-    
-    Returns:
-        float: CAGR as a percentage
-    """
+    #error handling if the equity curve is a list
     if isinstance(equity_curve, list):
         equity_curve = pd.Series(equity_curve)
-    
+    #initial value of the equity curve
     initial_value = equity_curve.iloc[0]
+    #final value of the equity curve
     final_value = equity_curve.iloc[-1]
-    
+    #calculating the cagr
     return ((final_value / initial_value) ** (1 / years) - 1) * 100
 
+#function to calculate the calmar ratio of the strategy
 def calculate_calmar_ratio(equity_curve: Union[List[float], pd.Series], years: float) -> float:
-    """
-    Calculate the Calmar ratio (CAGR / Max Drawdown).
-    
-    Args:
-        equity_curve: List or Series of equity values
-        years: Number of years in the backtest period
-    
-    Returns:
-        float: Calmar ratio
-    """
+    #error handling if the equity curve is a list
+    if isinstance(equity_curve, list):
+        equity_curve = pd.Series(equity_curve)
+    #calculating the cagr
     cagr = calculate_cagr(equity_curve, years)
     max_dd = calculate_max_drawdown(equity_curve)
-    
+    #error handling if the max drawdown is 0
     if max_dd == 0:
         return 0.0
-    
+    #calculating the calmar ratio
     return cagr / max_dd
 
+#function to calculate the sortino ratio of the strategy
 def calculate_sortino_ratio(returns: Union[List[float], pd.Series], risk_free_rate: float = 0.02) -> float:
-    """
-    Calculate the Sortino ratio of the strategy.
-    
-    Args:
-        returns: List or Series of returns
-        risk_free_rate: Annual risk-free rate (default: 2%)
-    
-    Returns:
-        float: Sortino ratio
-    """
+    #error handling if the returns are a list
     if isinstance(returns, list):
         returns = pd.Series(returns)
     
-    # Convert returns to annual
+    #calculating the annual returns
     annual_returns = returns.mean() * 252
-    
-    # Calculate downside deviation
+    #calculating the downside deviation
     downside_returns = returns[returns < 0]
     downside_deviation = downside_returns.std() * np.sqrt(252)
-    
+    #error handling if the downside deviation is 0
     if downside_deviation == 0:
         return 0.0
-    
+    #calculating the sortino ratio
     return (annual_returns - risk_free_rate) / downside_deviation
 
+#function to calculate the win rate of the strategy
 def calculate_win_rate(trades: pd.DataFrame) -> float:
-    """
-    Calculate the win rate from a trade log.
-    
-    Args:
-        trades: DataFrame containing trade information
-    
-    Returns:
-        float: Win rate as a percentage
-    """
+
+    #error handling if the trades are empty
     if trades.empty:
         return 0.0
-    
+    #calculating the winning trades
     winning_trades = len(trades[trades['PnL'] > 0])
+    #calculating the total trades
     total_trades = len(trades)
-    
+    #calculating the win rate
     return (winning_trades / total_trades) * 100
 
+#function to calculate the profit factor of the strategy
 def calculate_profit_factor(trades: pd.DataFrame) -> float:
-    """
-    Calculate the profit factor (gross profit / gross loss).
-    
-    Args:
-        trades: DataFrame containing trade information
-    
-    Returns:
-        float: Profit factor
-    """
+    #error handling if the trades are empty
     if trades.empty:
         return 0.0
-    
+    #calculating the gross profit
     gross_profit = trades[trades['PnL'] > 0]['PnL'].sum()
+    #calculating the gross loss
     gross_loss = abs(trades[trades['PnL'] < 0]['PnL'].sum())
-    
+    #error handling if the gross loss is 0
     if gross_loss == 0:
         return float('inf')
-    
+    #calculating the profit factor
     return gross_profit / gross_loss
 
+#function to calculate the average trade of the strategy
 def calculate_average_trade(trades: pd.DataFrame) -> float:
-    """
-    Calculate the average trade PnL.
-    
-    Args:
-        trades: DataFrame containing trade information
-    
-    Returns:
-        float: Average trade PnL
-    """
+    #error handling if the trades are empty
     if trades.empty:
         return 0.0
-    
+    #calculating the average trade
     return trades['PnL'].mean()
 
+#function to calculate the recovery factor of the strategy
 def calculate_recovery_factor(equity_curve: Union[List[float], pd.Series]) -> float:
-    """
-    Calculate the recovery factor (total return / max drawdown).
-    
-    Args:
-        equity_curve: List or Series of equity values
-    
-    Returns:
-        float: Recovery factor
-    """
+    #calculating the total return
     total_return = calculate_total_return(equity_curve)
+    #calculating the max drawdown
     max_dd = calculate_max_drawdown(equity_curve)
-    
+    #error handling if the max drawdown is 0
     if max_dd == 0:
         return 0.0
-    
+    #calculating the recovery factor
     return total_return / max_dd 
