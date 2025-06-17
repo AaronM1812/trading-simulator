@@ -1,16 +1,17 @@
 """
 Trading Strategy Simulator - Streamlit Cloud Entry Point
-This file serves as the entry point for Streamlit Cloud deployment.
+Redirects to the main application in the app directory.
 """
 
+import streamlit as st
 import sys
 import os
 
-# Add the app directory to the Python path
-sys.path.append(os.path.join(os.path.dirname(__file__), 'app'))
+# Add the app directory to the path
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'app'))
 
-# Import and run the main application
+# Import the main function from app/main.py
 from main import main
 
-if __name__ == "__main__":
-    main() 
+# Run the main application
+main() 
