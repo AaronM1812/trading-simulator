@@ -1,17 +1,21 @@
 #libraries used for the strategy factory
+#type hinting, code clarity
 from typing import Dict, Type
+#abstract base class for creating interfaces
 from abc import ABC, abstractmethod
+#pandas for data manipulation
 import pandas as pd
 
 #base class for all trading strategies
 class Strategy(ABC):
-    #abstract method to generate signals
+    #abstract method to generate signals, forces all subclasses to implement this method
     @abstractmethod
+    #kwargs allows different strats to have different params
     def generate_signals(self, data: pd.DataFrame, **kwargs) -> list:
         #error handling if the method is not implemented
         pass
 
-#simple moving average crossover strategy
+#simple moving average crossover strategy, inherits from strategy
 class SMACrossoverStrategy(Strategy):
     #generating signals for the given price data
     def generate_signals(self, data: pd.DataFrame, **kwargs) -> list:
